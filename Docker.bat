@@ -66,3 +66,29 @@ docker tag apress/exampleapp:latest wouldyoukindly/exampleapp
 docker login -u <yourUsername> -p <yourPassword>
 docker push wouldyoukindly/exampleapp
 docker logout
+
+
+
+:: Создаем область данных (файловую систему)
+docker volume create --name testdata
+:: Говорим, какую область для сохранния данных будет использовать контейнер
+:: Теперь, если удалить контейнер и запустить заново, то данные не потеряются
+docker run --name vtest2 -v testdata:/data apress/vtest
+:: Посмотреть информацию об образе (пишет ли он в volume)
+docker inspect apress/vtest
+:: Don’t be tempted to create a Docker image that contains your asp.net Core mVC application and
+:: the database so they can run in a single container. the convention for Docker is to use a separate container
+:: for each component in an application, which makes it easier to upgrade or replace parts of the application
+:: and allows a more flexible approach to scaling up the application once it is deployed. You won’t benefit from
+:: Docker’s most useful features if you create a monolithic container that includes all your application components.
+
+docker pull mysql:8.0.0
+docker inspect mysql:8.0.0
+docker volume create --name productdata
+:: Запустить mysql в фоновом режиме
+docker run -d --name mysql -v productdata:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=mysecret -e bind-address=0.0.0.0 mysql:8.0.0
+docker logs -f mysql
+:: Информация о виртуальной сети докера, где указывается, какой адрес был задан контейнеру mysql
+docker network inspect bridge
+:: Указываем, по какому адресу приожение должно подключаться к базе данных
+docker run -d --name productapp -p 3000:2700 -e DBHOST=172.17.0.2 wouldyoukindly/exampleapp
