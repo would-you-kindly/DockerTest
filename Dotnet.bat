@@ -10,3 +10,4 @@ dotnet run
 
 dotnet new mvc --language C# --auth None --framework netcoreapp3.0
 dotnet restore
+dotnet publish --framework netcoreapp3.0 --configuration Release --output dist
